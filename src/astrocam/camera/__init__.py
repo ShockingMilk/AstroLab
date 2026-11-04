@@ -1,0 +1,1 @@
+"""Camera control and sensor mode selection."""

@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=AstroCam
+Comment=Raspberry Pi Astronomy Camera
+Exec=/usr/bin/python3 /home/pi/camera_ui/run.py
+Path=/home/pi/camera_ui
+Terminal=false
+Categories=Science;Education;
+StartupNotify=false

@@ -1,0 +1,224 @@
+{
+    "camera": {
+      "index": "auto",
+      "stream_resolution": [
+        800,
+        480
+      ],
+      "purpose_default": "general"
+    },
+  
+    "display": {
+      "resolution": "auto",
+      "fallback_resolution": [
+        1024,
+        600
+      ]
+    },
+  
+    "storage": {
+      "mode": "auto",
+      "prefer_external": true,
+  
+      "fallback_directory": "~/Pictures/Astronomy",
+  
+      "directory_name": "Astronomy",
+      "images_directory": "Images",
+      "videos_directory": "Videos",
+      "logs_directory": "Logs",
+  
+      "preferred_label": null,
+      "preferred_mount": null,
+  
+      "external_transports": [
+        "usb"
+      ],
+  
+      "safety_margin_mb": 256,
+      "low_space_threshold_gb": 5,
+  
+      "refresh_interval": 2
+    },
+  
+    "capture": {
+      "estimated_video_minutes": 10
+    },
+  
+    "profiles": {
+  
+      "0": {
+        "name": "Calibration (Auto)",
+  
+        "camera": {
+          "purpose": "calibration",
+          "mode": "auto",
+          "stream_resolution": [
+            800,
+            480
+          ]
+        },
+  
+        "controls": {
+          "AeEnable": true
+        }
+      },
+  
+      "1": {
+        "name": "Moon",
+  
+        "camera": {
+          "purpose": "moon",
+          "mode": "auto",
+          "stream_resolution": "sensor"
+        },
+  
+        "controls": {
+          "ExposureTime": 1000,
+          "AnalogueGain": 1.0,
+          "AeEnable": false
+        }
+      },
+  
+      "2": {
+        "name": "Jupiter / Saturn",
+  
+        "camera": {
+          "purpose": "planetary",
+          "mode": "auto",
+          "stream_resolution": "sensor"
+        },
+  
+        "controls": {
+          "ExposureTime": 2000,
+          "AnalogueGain": 1.0,
+          "AeEnable": false
+        },
+  
+        "focus": {
+          "enabled": true,
+          "roi_fraction": 0.30
+        }
+      },
+  
+      "3": {
+        "name": "Bright Planet",
+  
+        "camera": {
+          "purpose": "bright_planet",
+          "mode": "auto",
+          "stream_resolution": "sensor"
+        },
+  
+        "controls": {
+          "ExposureTime": 10000,
+          "AnalogueGain": 2.0,
+          "AeEnable": false
+        }
+      },
+  
+      "4": {
+        "name": "Sirius / Bright Stars",
+  
+        "camera": {
+          "purpose": "bright_star",
+          "mode": "auto",
+          "stream_resolution": "sensor"
+        },
+  
+        "controls": {
+          "ExposureTime": 20000,
+          "AnalogueGain": 2.0,
+          "AeEnable": false
+        },
+  
+        "focus": {
+          "enabled": true,
+          "roi_fraction": 0.25
+        }
+      },
+  
+      "5": {
+        "name": "Pleiades / Stars",
+  
+        "camera": {
+          "purpose": "star_field",
+          "mode": "auto",
+          "stream_resolution": "sensor"
+        },
+  
+        "controls": {
+          "ExposureTime": 50000,
+          "AnalogueGain": 4.0,
+          "AeEnable": false
+        },
+  
+        "focus": {
+          "enabled": true,
+          "roi_fraction": 0.25
+        }
+      }
+  
+    },
+  
+    "commands": {
+  
+      "s": {
+        "name": "Screenshot",
+        "action": "screenshot"
+      },
+  
+      "c": {
+        "name": "Clean View",
+        "action": "clean_view"
+      },
+  
+      "h": {
+        "name": "Histogram",
+        "action": "histogram"
+      },
+  
+      "f": {
+        "name": "Focus Assist",
+        "action": "focus_assist"
+      },
+  
+      "e": {
+        "name": "Exposure Adjust",
+        "action": "exposure_mode",
+        "options": {
+          "mode": "exposure"
+        }
+      },
+  
+      "g": {
+        "name": "Gain Adjust",
+        "action": "exposure_mode",
+        "options": {
+          "mode": "gain"
+        }
+      },
+  
+      "v": {
+        "name": "Video Record",
+        "action": "record_video",
+        "options": {
+          "fps": 30
+        }
+      },
+  
+      "l": {
+        "name": "Storage Location",
+        "action": "storage_location"
+      },
+  
+      "r": {
+        "name": "Reload",
+        "action": "reload"
+      },
+  
+      "q": {
+        "name": "Exit",
+        "action": "exit"
+      }
+    }
+  }
