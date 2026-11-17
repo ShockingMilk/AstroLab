@@ -1,0 +1,55 @@
+{
+    "application": {
+        "name": "Astro Assist",
+        "version": "0.1.0",
+        "fullscreen": true,
+        "allow_windowed_mode": true,
+        "target_display": "auto",
+        "fallback_resolution": [1024, 600]
+    },
+
+    "camera": {
+        "executable": "rpicam-vid",
+        "width": 1280,
+        "height": 720,
+        "framerate": 30,
+        "rotation": 180,
+        "timeout": 0,
+        "pixel_format": "yuv420",
+        "nopreview": true
+    },
+
+    "profiles": {
+        "0": {
+            "name": "Calibration",
+            "description": "Initial camera setup and daytime calibration.",
+            "enabled": true,
+            "camera": {
+                "width": 1280,
+                "height": 720,
+                "framerate": 30,
+                "rotation": 180
+            }
+        }
+    },
+
+    "ui": {
+        "background": "#101010",
+        "foreground": "#FFFFFF",
+        "accent": "#36A3FF",
+        "header_height": 42,
+        "controls_height": 64,
+        "show_fps": true,
+        "show_camera_status": true,
+        "show_crosshair": true,
+        "show_command_legend": true,
+        "preview_padding": 4
+    },
+
+    "controls": {
+        "exit": ["Escape", "q"],
+        "toggle_fullscreen": ["F11"],
+        "calibration_profile": ["0"],
+        "toggle_crosshair": ["c"]
+    }
+}

@@ -1,5 +1,3 @@
-"""
-AstroCam - Raspberry Pi astronomy camera interface.
-"""
+"""Astro Assist application package."""
 
 __version__ = "0.1.0"

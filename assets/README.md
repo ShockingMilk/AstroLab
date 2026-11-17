@@ -1,10 +1,12 @@
 # Assets
 
-This directory is reserved for application assets such as:
+Optional application assets belong here.
 
-- AstroCam icons
-- Future logos
+Examples:
+
+- Application icon
+- Logo
 - UI graphics
-- Calibration graphics
 
-The application does not currently require an image asset to run.
+Do not store captured astronomy images or video recordings
+in this directory.

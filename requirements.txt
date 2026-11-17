@@ -1,2 +1,10 @@
-numpy>=1.24
-opencv-python>=4.8
+# Install runtime dependencies through Raspberry Pi OS APT.
+#
+# sudo apt install -y \
+#     rpicam-apps \
+#     python3-opencv \
+#     python3-numpy \
+#     python3-pil \
+#     python3-tk
+#
+# No additional pip packages are required for Milestone 1.

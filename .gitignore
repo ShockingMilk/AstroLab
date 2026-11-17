@@ -1,50 +1,41 @@
 # Python
 __pycache__/
 *.py[cod]
-*$py.class
+*.pyo
+*.egg-info/
 
 # Virtual environments
 .venv/
 venv/
 env/
 
-# Packaging
+# IDEs
+.idea/
+.vscode/
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Build output
 build/
 dist/
-*.egg-info/
 
-# IDEs
-.vscode/
-.idea/
+# Logs
+*.log
 
 # OS files
 .DS_Store
 Thumbs.db
 
-# Test/cache files
-.pytest_cache/
-.coverage
-htmlcov/
+# Local settings and secrets
+.env
+.env.*
+secrets/
+local_settings.json
 
-# Runtime files
-*.log
-*.tmp
-
-# Astronomy captures
-Astronomy/
-astro_*.png
-astro_*.jpg
-astro_*.jpeg
-astro_*.mp4
-astro_*.avi
-
-# Local configuration overrides
-config/local/
-config/*.local.json
-
-# Python tooling
-.mypy_cache/
-.ruff_cache/
-
-# VS Code
-*.code-workspace
+# Generated astronomy data
+captures/
+recordings/
+processed/
