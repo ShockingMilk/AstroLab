@@ -1,55 +1,112 @@
 {
-    "application": {
-        "name": "Astro Assist",
-        "version": "0.1.0",
-        "fullscreen": true,
-        "allow_windowed_mode": true,
-        "target_display": "auto",
-        "fallback_resolution": [1024, 600]
-    },
-
-    "camera": {
-        "executable": "rpicam-vid",
+  "application": {
+    "name": "Astro Assist",
+    "version": "0.2.0",
+    "fullscreen": true,
+    "allow_windowed_mode": true,
+    "target_display": "auto",
+    "fallback_resolution": [1024, 600]
+  },
+  "camera": {
+    "executable": "rpicam-vid",
+    "width": 1280,
+    "height": 960,
+    "framerate": 10,
+    "rotation": 180,
+    "timeout": 0,
+    "pixel_format": "yuv420",
+    "nopreview": true,
+    "startup_timeout": 10
+  },
+  "profiles": {
+    "0": {
+      "name": "Calibration",
+      "description": "Initial camera setup and daytime calibration.",
+      "enabled": true,
+      "camera": {
+        "sensor_mode": "4056:3040:12:P",
         "width": 1280,
-        "height": 720,
-        "framerate": 30,
-        "rotation": 180,
-        "timeout": 0,
-        "pixel_format": "yuv420",
-        "nopreview": true
+        "height": 960,
+        "framerate": 10,
+        "rotation": 180
+      }
     },
-
-    "profiles": {
-        "0": {
-            "name": "Calibration",
-            "description": "Initial camera setup and daytime calibration.",
-            "enabled": true,
-            "camera": {
-                "width": 1280,
-                "height": 720,
-                "framerate": 30,
-                "rotation": 180
-            }
+    "1": {
+      "name": "Moon",
+      "description": "Lunar observation and surface detail.",
+      "enabled": true,
+      "camera": {
+        "sensor_mode": "2028:1520:12:P",
+        "width": 1280,
+        "height": 960,
+        "framerate": 30,
+        "rotation": 180
+      }
+    },
+    "2": {
+      "name": "Planetary",
+      "description": "High-frame-rate capture for bright planets.",
+      "enabled": true,
+        "camera": {
+            "sensor_mode": "1332:990:10:P",
+            "width": 1280,
+            "height": 960,
+            "framerate": 60,
+            "rotation": 180
         }
     },
-
-    "ui": {
-        "background": "#101010",
-        "foreground": "#FFFFFF",
-        "accent": "#36A3FF",
-        "header_height": 42,
-        "controls_height": 64,
-        "show_fps": true,
-        "show_camera_status": true,
-        "show_crosshair": true,
-        "show_command_legend": true,
-        "preview_padding": 4
+    "3": {
+      "name": "Bright Planet",
+      "description": "Alternative planetary mode with a wider sensor image.",
+      "enabled": true,
+      "camera": {
+        "sensor_mode": "2028:1080:10:P",
+        "width": 1280,
+        "height": 680,
+        "framerate": 60,
+        "rotation": 180
+      }
     },
-
-    "controls": {
-        "exit": ["Escape", "q"],
-        "toggle_fullscreen": ["F11"],
-        "calibration_profile": ["0"],
-        "toggle_crosshair": ["c"]
+    "4": {
+      "name": "Bright Star",
+      "description": "High-resolution mode for bright stars.",
+      "enabled": true,
+      "camera": {
+        "sensor_mode": "4056:3040:12:P",
+        "width": 1280,
+        "height": 960,
+        "framerate": 10,
+        "rotation": 180
+      }
+    },
+    "5": {
+      "name": "Star Field",
+      "description": "Wide sensor mode for star fields and clusters.",
+      "enabled": true,
+      "camera": {
+        "sensor_mode": "4056:2160:12:P",
+        "width": 1280,
+        "height": 680,
+        "framerate": 15,
+        "rotation": 180
+      }
     }
+  },
+  "ui": {
+    "background": "#101010",
+    "foreground": "#FFFFFF",
+    "accent": "#36A3FF",
+    "header_height": 42,
+    "controls_height": 76,
+    "show_fps": true,
+    "show_camera_status": true,
+    "show_crosshair": true,
+    "show_command_legend": true,
+    "preview_padding": 4
+  },
+  "controls": {
+    "exit": ["Escape", "q"],
+    "toggle_crosshair": ["c"],
+    "profiles": ["0", "1", "2", "3", "4", "5"]
+  }
 }

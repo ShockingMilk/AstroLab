@@ -2,57 +2,102 @@
 
 import tkinter as tk
 from collections.abc import Callable
-
+from typing import Any
 
 class ControlPanel(tk.Frame):
-    """Display clickable application commands."""
+    """Display profile selection and application commands."""
 
     def __init__(
         self,
-        parent,
+        parent: tk.Misc,
         settings: dict,
+        profiles: dict[str, dict[str, Any]],
         callbacks: dict[str, Callable[[], None]],
+        allow_windowed_mode: bool = True,
     ) -> None:
         super().__init__(
             parent,
             bg=settings.get("background", "#101010"),
-            height=64,
+            height=settings.get("controls_height", 76),
         )
 
         self.pack_propagate(False)
 
         foreground = settings.get("foreground", "#FFFFFF")
         accent = settings.get("accent", "#36A3FF")
+        background = settings.get("background", "#101010")
 
-        commands = (
-            ("0  Calibration", "calibration"),
-            ("C  Crosshair", "crosshair"),
-            ("F11  Fullscreen", "fullscreen"),
-            ("Q  Exit", "exit"),
+        profile_row = tk.Frame(self, bg=background)
+        profile_row.pack(
+            side="top",
+            fill="both",
+            expand=True,
+            padx=4,
+            pady=(3, 0),
         )
 
-        for label, action in commands:
+        action_row = tk.Frame(self, bg=background)
+        action_row.pack(
+            side="bottom",
+            fill="both",
+            expand=True,
+            padx=4,
+            pady=(0, 3),
+        )
+
+        for profile_id, profile in profiles.items():
+            if not profile.get("enabled", True):
+                continue
+
+            name = profile.get("name", profile_id)
+            label = f"{profile_id}  {name}"
+
             self._create_button(
+                parent=profile_row,
                 text=label,
-                command=callbacks[action],
+                command=callbacks[f"profile:{profile_id}"],
+                foreground=foreground,
+                accent=accent,
+                expand=True,
+            )
+
+        self._create_button(
+            parent=action_row,
+            text="Crosshair",
+            command=callbacks["crosshair"],
+            foreground=foreground,
+            accent=accent,
+        )
+
+        if allow_windowed_mode:
+            self._create_button(
+                parent=action_row,
+                text="Display Mode",
+                command=callbacks["display_mode"],
                 foreground=foreground,
                 accent=accent,
             )
 
-    # ------------------------------------------------------------------
-    # Control creation
-    # ------------------------------------------------------------------
+        self._create_button(
+            parent=action_row,
+            text="Exit",
+            command=callbacks["exit"],
+            foreground=foreground,
+            accent=accent,
+        )
 
+    @staticmethod
     def _create_button(
-        self,
+        parent: tk.Misc,
         text: str,
         command: Callable[[], None],
         foreground: str,
         accent: str,
+        expand: bool = False,
     ) -> None:
         """Create a consistently styled command button."""
         button = tk.Button(
-            self,
+            parent,
             text=text,
             command=command,
             bg="#202020",
@@ -60,8 +105,16 @@ class ControlPanel(tk.Frame):
             activebackground=accent,
             activeforeground="#FFFFFF",
             relief="flat",
-            font=("Arial", 10),
-            padx=12,
+            font=("Arial", 9),
+            padx=8,
+            pady=2,
+            takefocus=True,
         )
 
-        button.pack(side="left", padx=5, pady=8, fill="y")
+        button.pack(
+            side="left",
+            padx=3,
+            pady=2,
+            fill="both",
+            expand=expand,
+        )

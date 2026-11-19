@@ -5,11 +5,13 @@ import subprocess
 import threading
 from typing import Optional
 
-
 class CameraProcess:
     """Start, monitor, and stop a camera streaming process."""
 
     def __init__(self, command: list[str], frame_size: int) -> None:
+        if frame_size <= 0:
+            raise ValueError("Frame size must be positive.")
+
         self.command = command
         self.frame_size = frame_size
 
@@ -20,14 +22,13 @@ class CameraProcess:
         self.running = False
         self.error_message: Optional[str] = None
 
-    # ------------------------------------------------------------------
-    # Process lifecycle
-    # ------------------------------------------------------------------
-
     def start(self) -> None:
         """Start the camera process and its frame reader."""
         if self.running:
             return
+
+        self._clear_frame_queue()
+        self.error_message = None
 
         self.process = subprocess.Popen(
             self.command,
@@ -37,6 +38,9 @@ class CameraProcess:
         )
 
         if self.process.stdout is None:
+            self.process.terminate()
+            self.process.wait(timeout=3)
+            self.process = None
             raise RuntimeError("Camera process did not provide stdout.")
 
         self.running = True
@@ -51,33 +55,42 @@ class CameraProcess:
         """Terminate the process and wait for its reader thread."""
         self.running = False
 
-        if self.process is not None:
-            if self.process.poll() is None:
-                self.process.terminate()
+        process = self.process
+
+        if process is not None:
+            if process.poll() is None:
+                process.terminate()
 
                 try:
-                    self.process.wait(timeout=3)
+                    process.wait(timeout=3)
                 except subprocess.TimeoutExpired:
-                    self.process.kill()
-                    self.process.wait(timeout=2)
+                    process.kill()
+                    process.wait(timeout=2)
 
-            if self.process.stdout is not None:
-                self.process.stdout.close()
+            if process.stdout is not None:
+                try:
+                    process.stdout.close()
+                except OSError:
+                    pass
 
         if self.reader_thread is not None:
             self.reader_thread.join(timeout=3)
 
         self.process = None
         self.reader_thread = None
-
-    # ------------------------------------------------------------------
-    # Frame handling
-    # ------------------------------------------------------------------
+        self._clear_frame_queue()
 
     def get_frame(self) -> Optional[bytes]:
-        """Return the most recently available raw frame."""
+        """Return the newest available raw frame."""
         try:
             return self.frame_queue.get_nowait()
+        except queue.Empty:
+            return None
+
+    def wait_for_frame(self, timeout: float) -> Optional[bytes]:
+        """Wait for a complete frame, up to the specified timeout."""
+        try:
+            return self.frame_queue.get(timeout=timeout)
         except queue.Empty:
             return None
 
@@ -118,10 +131,22 @@ class CameraProcess:
                     except queue.Empty:
                         pass
 
-                self.frame_queue.put_nowait(frame)
+                try:
+                    self.frame_queue.put_nowait(frame)
+                except queue.Full:
+                    pass
 
             except (OSError, ValueError) as exc:
-                self.error_message = str(exc)
+                if self.running:
+                    self.error_message = str(exc)
                 break
 
         self.running = False
+
+    def _clear_frame_queue(self) -> None:
+        """Discard any frames left from an earlier stream."""
+        while True:
+            try:
+                self.frame_queue.get_nowait()
+            except queue.Empty:
+                break

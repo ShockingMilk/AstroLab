@@ -27,6 +27,14 @@ class TestConfigLoader(unittest.TestCase):
             "profiles": {
                 "0": {
                     "name": "Calibration",
+                    "enabled": True,
+                    "camera": {
+                        "sensor_mode": "4056:3040:12:P",
+                        "width": 1280,
+                        "height": 960,
+                        "framerate": 10,
+                        "rotation": 180
+                    }
                 }
             },
             "ui": {},

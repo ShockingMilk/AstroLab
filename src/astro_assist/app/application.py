@@ -1,8 +1,9 @@
 """Astro Assist application entry point."""
 
 import tkinter as tk
-from tkinter import messagebox
+
 from pathlib import Path
+from tkinter import messagebox
 
 from astro_assist.camera.manager import CameraManager
 from astro_assist.common.exceptions import AstroAssistError
@@ -23,26 +24,24 @@ class Application:
         self.camera: CameraManager | None = None
         self.window: MainWindow | None = None
 
-    # ------------------------------------------------------------------
-    # Application initialization
-    # ------------------------------------------------------------------
-
     def initialize(self) -> None:
         """Load settings, detect devices, and start the camera."""
         settings = self.config.load()
-
         self.root = tk.Tk()
 
         devices = DeviceManager(root=self.root).detect()
 
         if not devices.camera_executable:
-            raise AstroAssistError(
-                "rpicam-vid was not found. Install the Raspberry Pi "
-                "camera applications and try again."
-            )
+            raise AstroAssistError("rpicam-vid was not found. Install the Raspberry Pi camera applications and try again.")
+
+        calibration = settings["profiles"]["0"]
+
+        if not calibration.get("enabled", True):
+            raise AstroAssistError("The required Calibration profile is disabled.")
 
         camera_settings = settings["camera"].copy()
         camera_settings["executable"] = devices.camera_executable
+        camera_settings.update(calibration["camera"])
 
         self.camera = CameraManager(settings=camera_settings)
         self.camera.start()
@@ -52,10 +51,6 @@ class Application:
             camera=self.camera,
             settings=settings,
         )
-
-    # ------------------------------------------------------------------
-    # Application lifecycle
-    # ------------------------------------------------------------------
 
     def run(self) -> None:
         """Initialize and run the application."""
@@ -92,4 +87,7 @@ class Application:
             self.camera.stop()
 
         if self.root is not None:
-            self.root.destroy()
+            try:
+                self.root.destroy()
+            except tk.TclError:
+                pass
