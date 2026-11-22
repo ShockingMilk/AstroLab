@@ -8,14 +8,10 @@
     "fallback_resolution": [1024, 600]
   },
   "camera": {
-    "executable": "rpicam-vid",
     "width": 1280,
     "height": 960,
     "framerate": 10,
     "rotation": 180,
-    "timeout": 0,
-    "pixel_format": "yuv420",
-    "nopreview": true,
     "startup_timeout": 10
   },
   "profiles": {

@@ -2,7 +2,7 @@
 
 import unittest
 
-from astro_assist.camera.manager import CameraManager
+from astro_assist.camera.legacy_manager import CameraManager
 
 
 class CameraCommandTests(unittest.TestCase):

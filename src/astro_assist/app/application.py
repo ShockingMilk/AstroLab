@@ -25,14 +25,11 @@ class Application:
         self.window: MainWindow | None = None
 
     def initialize(self) -> None:
-        """Load settings, detect devices, and start the camera."""
+        """Load settings, detect the display, and start the camera."""
         settings = self.config.load()
         self.root = tk.Tk()
 
-        devices = DeviceManager(root=self.root).detect()
-
-        if not devices.camera_executable:
-            raise AstroAssistError("rpicam-vid was not found. Install the Raspberry Pi camera applications and try again.")
+        DeviceManager(root=self.root).detect_display()
 
         calibration = settings["profiles"]["0"]
 
@@ -40,7 +37,6 @@ class Application:
             raise AstroAssistError("The required Calibration profile is disabled.")
 
         camera_settings = settings["camera"].copy()
-        camera_settings["executable"] = devices.camera_executable
         camera_settings.update(calibration["camera"])
 
         self.camera = CameraManager(settings=camera_settings)

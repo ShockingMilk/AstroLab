@@ -120,7 +120,7 @@ class ConfigLoader:
         settings: dict[str, Any],
         profile_id: str,
     ) -> None:
-        """Validate the rpicam sensor mode string."""
+        """Validate the sensor mode used to select a Picamera2 sensor."""
         sensor_mode = settings.get("sensor_mode")
 
         if not isinstance(sensor_mode, str) or not _SENSOR_MODE_PATTERN.fullmatch(sensor_mode):
