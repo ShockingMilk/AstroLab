@@ -7,7 +7,7 @@ from typing import Any
 
 from astro_assist.camera.manager import CameraManager
 from astro_assist.common.exceptions import CameraError
-from astro_assist.ui.controls import ControlPanel
+from astro_assist.ui.controls import ControlPanel, LiveControlsPanel
 from astro_assist.ui.preview import CameraPreview
 from astro_assist.ui.status_bar import StatusBar
 
@@ -25,9 +25,12 @@ class MainWindow:
         self.settings = settings
 
         self.running = True
-        self.fullscreen = bool(settings["application"].get("fullscreen", True))
+        self.fullscreen = bool(
+            settings["application"].get("fullscreen", True)
+        )
         self.profiles = settings["profiles"]
         self.current_profile = "0"
+        self.live_controls_open = False
 
         self.last_frame_time = time.monotonic()
         self.fps = 0.0
@@ -44,12 +47,8 @@ class MainWindow:
         application = self.settings["application"]
         ui = self.settings["ui"]
 
-        self.root.title(
-            application.get("name", "Astro Assist")
-        )
-        self.root.configure(
-            bg=ui.get("background", "#101010")
-        )
+        self.root.title(application.get("name", "Astro Assist"))
+        self.root.configure(bg=ui.get("background", "#101010"))
         self.root.minsize(800, 480)
 
         if self.fullscreen:
@@ -66,7 +65,7 @@ class MainWindow:
         self.root.update_idletasks()
 
     def _create_layout(self) -> None:
-        """Create the header, preview, controls, and status regions."""
+        """Create the header, preview, adjustments, controls, and status."""
         ui = self.settings["ui"]
         application = self.settings["application"]
         background = ui.get("background", "#101010")
@@ -81,11 +80,7 @@ class MainWindow:
             padx=10,
             height=2,
         )
-        self.header.grid(
-            row=0,
-            column=0,
-            sticky="ew",
-        )
+        self.header.grid(row=0, column=0, sticky="ew")
 
         self.preview = CameraPreview(
             parent=self.root,
@@ -98,9 +93,23 @@ class MainWindow:
             padx=ui.get("preview_padding", 4),
         )
 
+        self.live_controls = LiveControlsPanel(
+            parent=self.root,
+            camera=self.camera,
+            settings=ui,
+            on_status=self.status_message,
+        )
+        self.live_controls.grid(
+            row=2,
+            column=0,
+            sticky="ew",
+        )
+        self.live_controls.grid_remove()
+
         callbacks = {
             "crosshair": self._handle_crosshair,
             "display_mode": self._handle_display_mode,
+            "live_controls": self._handle_live_controls,
             "exit": self._handle_exit,
         }
 
@@ -121,7 +130,7 @@ class MainWindow:
             ),
         )
         self.controls.grid(
-            row=2,
+            row=3,
             column=0,
             sticky="ew",
         )
@@ -131,10 +140,14 @@ class MainWindow:
             settings=ui,
         )
         self.status.grid(
-            row=3,
+            row=4,
             column=0,
             sticky="ew",
         )
+
+    def status_message(self, message: str) -> None:
+        """Display a message in the application status bar."""
+        self.status.update_status(message)
 
     def _bind_keys(self) -> None:
         """Bind keyboard shortcuts to application actions."""
@@ -169,7 +182,12 @@ class MainWindow:
         profile = self.profiles[self.current_profile]
         profile_name = profile.get("name", self.current_profile)
 
-        self.header.configure(text=f"ASTRO ASSIST  |  PROFILE: {self.current_profile} - {profile_name.upper()}")
+        self.header.configure(
+            text=(
+                f"ASTRO ASSIST  |  PROFILE: "
+                f"{self.current_profile} - {profile_name.upper()}"
+            )
+        )
         self.status.update_profile(profile_name)
 
     def _handle_profile(self, profile_id: str) -> None:
@@ -186,7 +204,9 @@ class MainWindow:
             return
 
         profile_name = profile.get("name", profile_id)
-        self.status.update_status(f"Camera: Switching to {profile_name}...")
+        self.status.update_status(
+            f"Camera: Switching to {profile_name}..."
+        )
         self.root.update_idletasks()
 
         camera_settings = self.settings["camera"].copy()
@@ -198,7 +218,9 @@ class MainWindow:
             self.status.update_status(str(exc))
 
             if self.camera.state.value == "streaming":
-                self.status.update_status("Camera: Previous profile restored")
+                self.status.update_status(
+                    "Camera: Previous profile restored"
+                )
             return
 
         self.current_profile = profile_id
@@ -206,7 +228,9 @@ class MainWindow:
         self.fps = 0.0
 
         self._update_profile_display()
-        self.status.update_status(f"Camera: STREAMING  |  Sensor: {self.camera.sensor_mode}")
+        self.status.update_status(
+            f"Camera: STREAMING  |  Sensor: {self.camera.sensor_mode}"
+        )
 
     def _handle_crosshair(
         self,
@@ -214,6 +238,22 @@ class MainWindow:
     ) -> None:
         """Toggle the camera preview crosshair."""
         self.preview.toggle_crosshair()
+
+    def _handle_live_controls(
+        self,
+        event: tk.Event | None = None,
+    ) -> None:
+        """Show or hide the live camera adjustment panel."""
+        if self.live_controls_open:
+            self.live_controls.grid_remove()
+            self.live_controls_open = False
+        else:
+            self.live_controls.grid()
+            self.live_controls_open = True
+
+        self.controls.set_live_controls_open(
+            self.live_controls_open
+        )
 
     def _handle_exit(
         self,
@@ -271,12 +311,16 @@ class MainWindow:
                 ]
 
                 if self.settings["ui"].get("show_fps", True):
-                    status_parts.append(f"Preview: {self.fps:.1f} FPS")
+                    status_parts.append(
+                        f"Preview: {self.fps:.1f} FPS"
+                    )
 
                 self.status.update_status("  |  ".join(status_parts))
 
             elif self.camera.state.value == "error":
-                self.status.update_status("Camera: ERROR - check camera process")
+                self.status.update_status(
+                    "Camera: ERROR - check camera process"
+                )
 
         except CameraError as exc:
             self.status.update_status(f"Camera: ERROR - {exc}")

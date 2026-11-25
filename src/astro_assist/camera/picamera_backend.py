@@ -141,50 +141,95 @@ class PicameraBackend:
         value: Any,
         limits: Any,
     ) -> None:
-        """Validate scalar or tuple control values against Picamera2 ranges."""
+        """Validate scalar and tuple control values against camera ranges."""
         if not isinstance(limits, (tuple, list)) or len(limits) != 3:
-            raise CameraError(f"The '{name}' control does not expose a supported range.")
+            raise CameraError(
+                f"The '{name}' control does not expose a supported range."
+            )
 
         minimum, maximum, _default = limits
 
         # Boolean controls, such as AeEnable and AwbEnable.
         if isinstance(minimum, bool) and isinstance(maximum, bool):
             if not isinstance(value, bool):
-                raise CameraError(f"The '{name}' control requires a boolean value.")
+                raise CameraError(
+                    f"The '{name}' control requires a boolean value."
+                )
             return
 
-        # Tuple controls, such as ColourGains and ScalerCrop.
-        if isinstance(minimum, (tuple, list)) and isinstance(maximum, (tuple, list)):
+        # ColourGains is a two-value control with shared scalar limits.
+        if name == "ColourGains":
+            if not isinstance(value, (tuple, list)) or len(value) != 2:
+                raise CameraError(
+                    "ColourGains requires two values: red and blue."
+                )
+
+            for channel, item in zip(("red", "blue"), value):
+                if (
+                    isinstance(item, bool)
+                    or not isinstance(item, numbers.Real)
+                    or not math.isfinite(item)
+                ):
+                    raise CameraError(
+                        f"The {channel} ColourGains value must be finite and numeric."
+                    )
+
+                if item < minimum or item > maximum:
+                    raise CameraError(
+                        f"The {channel} ColourGains value {item} is outside "
+                        f"the supported range ({minimum} to {maximum})."
+                    )
+            return
+
+        # Tuple controls with separate limits, such as ScalerCrop.
+        if isinstance(minimum, (tuple, list)) and isinstance(
+            maximum, (tuple, list)
+        ):
             if not isinstance(value, (tuple, list)):
-                raise CameraError(f"The '{name}' control requires a tuple/list value.")
+                raise CameraError(
+                    f"The '{name}' control requires a tuple/list value."
+                )
 
             if len(value) != len(minimum) or len(value) != len(maximum):
-                raise CameraError(f"The '{name}' control requires {len(minimum)} values.")
+                raise CameraError(
+                    f"The '{name}' control requires {len(minimum)} values."
+                )
 
             for index, item in enumerate(value):
                 low = minimum[index]
                 high = maximum[index]
 
-                if isinstance(item, bool) or not isinstance(item, numbers.Real):
-                    raise CameraError(f"Value {index + 1} for '{name}' must be numeric.")
-
-                if not math.isfinite(item):
-                    raise CameraError(f"Value {index + 1} for '{name}' must be finite.")
+                if (
+                    isinstance(item, bool)
+                    or not isinstance(item, numbers.Real)
+                    or not math.isfinite(item)
+                ):
+                    raise CameraError(
+                        f"Value {index + 1} for '{name}' must be finite and numeric."
+                    )
 
                 if item < low or item > high:
-                    raise CameraError(f"Value {item} for '{name}' is outside the supported range ({low} to {high}).")
-
+                    raise CameraError(
+                        f"Value {item} for '{name}' is outside "
+                        f"the supported range ({low} to {high})."
+                    )
             return
 
         # Scalar numeric controls.
-        if isinstance(value, bool) or not isinstance(value, numbers.Real):
-            raise CameraError(f"The '{name}' control requires a numeric value.")
-
-        if not math.isfinite(value):
-            raise CameraError(f"The '{name}' control requires a finite value.")
+        if (
+            isinstance(value, bool)
+            or not isinstance(value, numbers.Real)
+            or not math.isfinite(value)
+        ):
+            raise CameraError(
+                f"The '{name}' control requires a finite numeric value."
+            )
 
         if value < minimum or value > maximum:
-            raise CameraError(f"The '{name}' value {value} is outside the supported range ({minimum} to {maximum}).")
+            raise CameraError(
+                f"The '{name}' value {value} is outside "
+                f"the supported range ({minimum} to {maximum})."
+            )
 
         # Picamera2 integer controls must not receive floating-point values.
         if (
@@ -192,7 +237,9 @@ class PicameraBackend:
             and isinstance(maximum, numbers.Integral)
             and not isinstance(value, numbers.Integral)
         ):
-            raise CameraError(f"The '{name}' control requires an integer value.")
+            raise CameraError(
+                f"The '{name}' control requires an integer value."
+            )
 
     def set_controls(self, controls: dict[str, Any]) -> None:
         """Validate and apply runtime controls without restarting the camera."""
