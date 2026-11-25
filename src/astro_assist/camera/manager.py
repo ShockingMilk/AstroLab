@@ -38,8 +38,17 @@ class CameraManager:
         return self.backend.sensor_mode
 
     @property
-    def camera_controls(self) -> dict:
+    def camera_controls(self) -> dict[str, Any]:
+        """Return controls supported by the active camera."""
         return self.backend.camera_controls
+
+    def get_control_info(self, name: str) -> dict[str, Any]:
+        """Return range, default, and current value for one control."""
+        return self.backend.get_control_info(name)
+
+    def get_controls(self) -> dict[str, Any]:
+        """Return current values reported by camera metadata."""
+        return self.backend.get_controls()
 
     def start(self) -> None:
         """Start the configured camera backend."""
@@ -62,7 +71,7 @@ class CameraManager:
         return frame
 
     def set_controls(self, controls: dict[str, Any]) -> None:
-        """Apply runtime camera controls."""
+        """Validate and apply runtime camera controls."""
         self.backend.set_controls(controls)
 
     def reconfigure(self, new_settings: dict[str, Any]) -> None:
@@ -76,7 +85,6 @@ class CameraManager:
             self.backend.start()
             self.settings = new_settings.copy()
             self.state = self.backend.state
-
         except CameraError as original_error:
             self.backend.stop()
             self.backend = PicameraBackend(previous_settings)
